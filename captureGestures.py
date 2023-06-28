@@ -10,7 +10,7 @@ def main():
     cap = cv2.VideoCapture(0)
     detector = handDetector()
 
-    gestures = ['pointing', 'fingerGun']
+    gestures = ['pointing', 'fingerGun', 'thumbOut', 'fist']
 
     csv_file = './logs/data.csv'
     csv_header = ['gesture', '1x', '1y', '2x', '2y', '3x', '3y', '4x', '4y', '5x', '5y', '6x', '6y', '7x', '7y', '8x', '8y', '9x', '9y', '10x', '10y', '11x', '11y', '12x', '12y', '13x', '13y', '14x', '14y', '15x', '15y', '16x', '16y', '17x', '17y', '18x', '18y', '19x', '19y', '20x', '20y']

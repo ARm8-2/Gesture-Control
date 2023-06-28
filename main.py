@@ -1,5 +1,4 @@
 from handDetector import handDetector
-
 import cv2
 import time
 import joblib
@@ -15,35 +14,40 @@ def main():
     model = joblib.load('model/model.pkl')
     currentGesture = None
 
+    pyautogui.FAILSAFE = False
+
     while True:
         success, img = cap.read()
         img = cv2.flip(img, 1)  # Mirror horizontally
         img = detector.findHands(img)
         lmlist = detector.findPosition(img)
+        rellmlist = detector.findPosition(img)
         screen_width, screen_height = pyautogui.size()
-        
+
         if len(lmlist) != 0:
             for i in range(0, len(lmlist)):
-                if i != 0: lmlist[i] = lmlist[i][0], lmlist[i][1]-lmlist[0][1], lmlist[i][2]-lmlist[0][2]
+                if i != 0:
+                    rellmlist[i] = lmlist[i][0], lmlist[i][1]-lmlist[0][1], lmlist[i][2]-lmlist[0][2]
 
-            data = [lmlist[1][1], lmlist[1][2], lmlist[2][1], lmlist[2][2], lmlist[3][1], lmlist[3][2], lmlist[4][1], lmlist[4][2], lmlist[5][1], lmlist[5][2], lmlist[6][1], lmlist[6][2], lmlist[7][1], lmlist[7][2], lmlist[8][1], lmlist[8][2], lmlist[9][1], lmlist[9][2], lmlist[10][1], lmlist[10][2], lmlist[11][1], lmlist[11][2], lmlist[12][1], lmlist[12][2], lmlist[13][1], lmlist[13][2], lmlist[14][1], lmlist[14][2], lmlist[15][1], lmlist[15][2], lmlist[16][1], lmlist[16][2], lmlist[17][1], lmlist[17][2], lmlist[18][1], lmlist[18][2], lmlist[19][1], lmlist[19][2], lmlist[20][1], lmlist[20][2]]
+            data = [rellmlist[1][1], rellmlist[1][2], rellmlist[2][1], rellmlist[2][2], rellmlist[3][1], rellmlist[3][2], rellmlist[4][1], rellmlist[4][2], rellmlist[5][1], rellmlist[5][2], rellmlist[6][1], rellmlist[6][2], rellmlist[7][1], rellmlist[7][2], rellmlist[8][1], rellmlist[8][2], rellmlist[9][1], rellmlist[9][2], rellmlist[10][1], rellmlist[10][2], rellmlist[11][1], rellmlist[11][2], rellmlist[12][1], rellmlist[12][2], rellmlist[13][1], rellmlist[13][2], rellmlist[14][1], rellmlist[14][2], rellmlist[15][1], rellmlist[15][2], rellmlist[16][1], rellmlist[16][2], rellmlist[17][1], rellmlist[17][2], rellmlist[18][1], rellmlist[18][2], rellmlist[19][1], rellmlist[19][2], rellmlist[20][1], rellmlist[20][2]]
 
             gesture = model.predict([data])[0]
-            if gesture != currentGesture:
-                print(gesture)
+            currentGesture = gesture if gesture != 'none' else currentGesture
 
-            if gesture == 'pointing':
+            if currentGesture == 'pointing' or currentGesture == 'fingerGun':
                 index_finger_x, index_finger_y = lmlist[8][1], lmlist[8][2]
                 cursor_x = int(index_finger_x * screen_width / img.shape[1])
                 cursor_y = int(index_finger_y * screen_height / img.shape[0])
-            
-                # Move the cursor
-                pyautogui.moveTo(cursor_x, cursor_y)
 
-            if gesture == 'fingerGun':
+                if gesture == 'fingerGun':
+                    pyautogui.mouseDown()
+                else:
+                    pyautogui.mouseUp()
+                
+                pyautogui.moveTo(cursor_x*1.1, (cursor_y-100)*1.1)
+
+            if currentGesture == 'thumbOut':
                 pyautogui.click()
-
-            currentGesture = gesture if gesture != 'none' else currentGesture
 
         cTime = time.time()
         fps = 1 / (cTime - pTime)
